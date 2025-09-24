@@ -48,7 +48,7 @@ async function getAffiseDataConversions(dateFrom, dateTo) {
 async function writeToSheets(values) {
   await sheets.spreadsheets.values.clear({
     spreadsheetId: process.env.SPREADSHEET_ID,
-    range: process.env.RANGE,
+    range: "Аркуш1",
   });
 
   await sheets.spreadsheets.values.update({
