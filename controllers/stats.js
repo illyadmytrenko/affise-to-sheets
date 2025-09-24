@@ -8,7 +8,16 @@ const auth = new google.auth.GoogleAuth({
 });
 const sheets = google.sheets({ version: "v4", auth });
 
-async function getAffiseDataConversions() {
+async function getAffiseDataConversions(req, res) {
+  const dateFrom = req.query.date_from;
+  const dateTo = req.query.date_to;
+
+  if (!dateFrom || !dateTo) {
+    return res
+      .status(400)
+      .json({ error: "date_from and date_to are required" });
+  }
+
   const allConversions = [];
   const limit = 500;
   let page = 1;
@@ -20,8 +29,8 @@ async function getAffiseDataConversions() {
         {
           headers: { "API-Key": process.env.AFFISE_API_KEY },
           params: {
-            date_from: "2025-09-23",
-            date_to: "2025-09-24",
+            date_from: dateFrom,
+            date_to: dateTo,
             status: 2,
             limit,
             page,
@@ -38,7 +47,7 @@ async function getAffiseDataConversions() {
       page++;
     }
 
-    return { conversions: allConversions };
+    return res.status(200).json({ conversions: allConversions });
   } catch (err) {
     console.error("Error fetching data:", err.message);
     return null;
@@ -46,6 +55,11 @@ async function getAffiseDataConversions() {
 }
 
 async function writeToSheets(values) {
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId: process.env.SPREADSHEET_ID,
+    range: process.env.RANGE,
+  });
+
   await sheets.spreadsheets.values.update({
     spreadsheetId: process.env.SPREADSHEET_ID,
     range: process.env.RANGE,
