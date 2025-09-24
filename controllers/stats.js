@@ -71,7 +71,7 @@ export default {
           .json({ error: "date_from and date_to are required" });
       }
 
-      const data = await getAffiseDataConversions();
+      const data = await getAffiseDataConversions(dateFrom, dateTo);
       if (!data) return res.status(500).json({ error: "No data from Affise" });
 
       const stats = data.conversions || [];
