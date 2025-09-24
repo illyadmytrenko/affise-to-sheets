@@ -81,7 +81,7 @@ export default {
         "Наименование партнера",
         "ID партнера",
         "Revenue",
-        "Payout",
+        "Payouts",
       ];
 
       const grouped = {};
@@ -106,7 +106,7 @@ export default {
         }
 
         grouped[key].revenue += item.revenue || 0;
-        grouped[key].payout += item.payout || 0;
+        grouped[key].payout += item.payouts || 0;
       });
 
       const rows = Object.values(grouped).map((item) => [
