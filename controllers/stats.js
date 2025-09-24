@@ -8,16 +8,7 @@ const auth = new google.auth.GoogleAuth({
 });
 const sheets = google.sheets({ version: "v4", auth });
 
-async function getAffiseDataConversions(req, res) {
-  const dateFrom = req.query.date_from;
-  const dateTo = req.query.date_to;
-
-  if (!dateFrom || !dateTo) {
-    return res
-      .status(400)
-      .json({ error: "date_from and date_to are required" });
-  }
-
+async function getAffiseDataConversions(dateFrom, dateTo) {
   const allConversions = [];
   const limit = 500;
   let page = 1;
@@ -71,6 +62,15 @@ async function writeToSheets(values) {
 export default {
   async getConversions(req, res) {
     try {
+      const dateFrom = req.query.date_from;
+      const dateTo = req.query.date_to;
+
+      if (!dateFrom || !dateTo) {
+        return res
+          .status(400)
+          .json({ error: "date_from and date_to are required" });
+      }
+
       const data = await getAffiseDataConversions();
       if (!data) return res.status(500).json({ error: "No data from Affise" });
 
