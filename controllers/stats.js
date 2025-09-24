@@ -48,7 +48,7 @@ async function getAffiseDataConversions(dateFrom, dateTo) {
 async function writeToSheets(values) {
   const existingRes = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.SPREADSHEET_ID,
-    range: "Вхідні дані ",
+    range: "Вхідні дані",
   });
 
   const existingValues = existingRes.data.values || [];
