@@ -83,7 +83,7 @@ async function writeToSheets(values) {
   if (rowsToAppend.length > 0) {
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: "Аркуш1",
+      range: "Вхідні Дані",
       valueInputOption: "RAW",
       insertDataOption: "INSERT_ROWS",
       requestBody: { values: rowsToAppend },
