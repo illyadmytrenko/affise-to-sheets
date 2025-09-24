@@ -46,17 +46,38 @@ async function getAffiseDataConversions(dateFrom, dateTo) {
 }
 
 async function writeToSheets(values) {
-  await sheets.spreadsheets.values.clear({
+  const existingRes = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.SPREADSHEET_ID,
-    range: "Аркуш1",
+    range: process.env.RANGE,
   });
 
-  await sheets.spreadsheets.values.update({
+  const existingValues = existingRes.data.values || [];
+  const existingKeys = new Set();
+
+  for (let i = 1; i < existingValues.length; i++) {
+    const [date, , id] = existingValues[i];
+    existingKeys.add(`${date}-${id}`);
+  }
+
+  const [headers, ...rows] = values;
+  const newRows = rows.filter(
+    ([date, , id]) => !existingKeys.has(`${date}-${id}`)
+  );
+
+  if (newRows.length === 0) {
+    console.log("Нет новых данных для записи");
+    return;
+  }
+
+  await sheets.spreadsheets.values.append({
     spreadsheetId: process.env.SPREADSHEET_ID,
     range: process.env.RANGE,
     valueInputOption: "RAW",
-    requestBody: { values },
+    insertDataOption: "INSERT_ROWS",
+    requestBody: { values: newRows },
   });
+
+  console.log(`Добавлено ${newRows.length} строк`);
 }
 
 export default {
