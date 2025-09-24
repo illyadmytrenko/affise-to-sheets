@@ -38,7 +38,7 @@ async function getAffiseDataConversions(dateFrom, dateTo) {
       page++;
     }
 
-    return res.status(200).json({ conversions: allConversions });
+    return { conversions: allConversions };
   } catch (err) {
     console.error("Error fetching data:", err.message);
     return null;
