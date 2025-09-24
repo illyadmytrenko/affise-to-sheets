@@ -48,7 +48,7 @@ async function getAffiseDataConversions(dateFrom, dateTo) {
 async function writeToSheets(values) {
   const existingRes = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.SPREADSHEET_ID,
-    range: "Вхідні Дані ",
+    range: "Вхідні дані ",
   });
 
   const existingValues = existingRes.data.values || [];
@@ -83,7 +83,7 @@ async function writeToSheets(values) {
   if (rowsToAppend.length > 0) {
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: "Вхідні Дані",
+      range: "Вхідні дані",
       valueInputOption: "RAW",
       insertDataOption: "INSERT_ROWS",
       requestBody: { values: rowsToAppend },
@@ -94,7 +94,7 @@ async function writeToSheets(values) {
   for (const update of rowsToUpdate) {
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: `Вхідні Дані!A${update.rowIndex}:E${update.rowIndex}`,
+      range: `Вхідні дані!A${update.rowIndex}:E${update.rowIndex}`,
       valueInputOption: "RAW",
       requestBody: { values: [update.values] },
     });
