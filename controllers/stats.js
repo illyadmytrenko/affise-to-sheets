@@ -48,36 +48,61 @@ async function getAffiseDataConversions(dateFrom, dateTo) {
 async function writeToSheets(values) {
   const existingRes = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.SPREADSHEET_ID,
-    range: process.env.RANGE,
+    range: "Аркуш1",
   });
 
   const existingValues = existingRes.data.values || [];
-  const existingKeys = new Set();
+  const existingMap = new Map();
 
   for (let i = 1; i < existingValues.length; i++) {
-    const [date, , id] = existingValues[i];
-    existingKeys.add(`${date}-${id}`);
+    const row = existingValues[i];
+    const key = `${row[0]}-${row[2]}`;
+    existingMap.set(key, { rowIndex: i + 1, row });
   }
 
   const [headers, ...rows] = values;
-  const newRows = rows.filter(
-    ([date, , id]) => !existingKeys.has(`${date}-${id}`)
-  );
+  const rowsToAppend = [];
+  const rowsToUpdate = [];
 
-  if (newRows.length === 0) {
-    console.log("Нет новых данных для записи");
-    return;
-  }
+  rows.forEach((row) => {
+    const key = `${row[0]}-${row[2]}`;
+    const existing = existingMap.get(key);
 
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: process.env.SPREADSHEET_ID,
-    range: process.env.RANGE,
-    valueInputOption: "RAW",
-    insertDataOption: "INSERT_ROWS",
-    requestBody: { values: newRows },
+    if (!existing) {
+      rowsToAppend.push(row);
+    } else {
+      const [, , , revenue, payout] = row;
+      const [, , , existingRevenue, existingPayout] = existing.row;
+
+      if (revenue != existingRevenue || payout != existingPayout) {
+        rowsToUpdate.push({ rowIndex: existing.rowIndex, values: row });
+      }
+    }
   });
 
-  console.log(`Добавлено ${newRows.length} строк`);
+  if (rowsToAppend.length > 0) {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      range: "Аркуш1",
+      valueInputOption: "RAW",
+      insertDataOption: "INSERT_ROWS",
+      requestBody: { values: rowsToAppend },
+    });
+    console.log(`Добавлено ${rowsToAppend.length} новых строк`);
+  }
+
+  for (const update of rowsToUpdate) {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      range: `Аркуш1!A${update.rowIndex}:E${update.rowIndex}`,
+      valueInputOption: "RAW",
+      requestBody: { values: [update.values] },
+    });
+  }
+
+  if (rowsToUpdate.length > 0) {
+    console.log(`Обновлено ${rowsToUpdate.length} строк`);
+  }
 }
 
 export default {
