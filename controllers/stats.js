@@ -48,7 +48,7 @@ async function getAffiseDataConversions(dateFrom, dateTo) {
 async function writeToSheets(values) {
   const existingRes = await sheets.spreadsheets.values.get({
     spreadsheetId: process.env.SPREADSHEET_ID,
-    range: "Аркуш1",
+    range: "Вхідні Дані ",
   });
 
   const existingValues = existingRes.data.values || [];
@@ -94,7 +94,7 @@ async function writeToSheets(values) {
   for (const update of rowsToUpdate) {
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.SPREADSHEET_ID,
-      range: `Аркуш1!A${update.rowIndex}:E${update.rowIndex}`,
+      range: `Вхідні Дані!A${update.rowIndex}:E${update.rowIndex}`,
       valueInputOption: "RAW",
       requestBody: { values: [update.values] },
     });
